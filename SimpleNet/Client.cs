@@ -15,9 +15,9 @@ namespace SimpleNet
 
         private readonly Thread _recieveThread;
 
-        public bool Connect = false;
+        public bool Connect { get; set; }
 
-        public Action<Packet> Recieve;
+        public Action<Packet> Recieve { get; set; }
 
         public string ID { get; private set; }
 
@@ -25,7 +25,7 @@ namespace SimpleNet
 
         public Client(TcpClient client)
         {
-            _client = client;
+            _client = client ?? throw new ArgumentNullException();
             _stream = client.GetStream();
 
             Connect = true;

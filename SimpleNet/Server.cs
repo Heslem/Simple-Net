@@ -15,8 +15,8 @@ namespace SimpleNet
 
         public int CountConnections => _clients.Count;
 
-        public Action<Client> ClientConnect;
-        public Action<Client> ClientDisconnect;
+        public Action<Client> ClientConnect { get; set; }
+        public Action<Client> ClientDisconnect { get; set; }
 
         private Server()
         {
