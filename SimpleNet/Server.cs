@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SimpleNetworking
+namespace SimpleNet
 {
+    /// <summary>
+    /// Class for to process connected clients
+    /// </summary>
     public sealed class Server
     {
         private static Server _server;

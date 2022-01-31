@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace SimpleNetworking
+namespace SimpleNet
 {
+    /// <summary>
+    /// Class for connecting to server. The server uses this class to process clients
+    /// </summary>
     public sealed class Client
     {
         private readonly TcpClient _client;

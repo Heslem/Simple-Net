@@ -1,4 +1,4 @@
-﻿namespace SimpleNetworking
+﻿namespace SimpleNet
 {
     public struct Packet
     {
