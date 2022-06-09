@@ -4,9 +4,7 @@ ____
 ### Example server
 ```C#
   Server server = Server.GetServer(); // get a server, need for working with all clients
-
-  Listener listener = new Listener();
-  listener.Start();
+  server.Init();
 
   server.ClientConnect += (client) =>
   {
@@ -24,6 +22,7 @@ ____
       if (server.CountConnections != 0)
           server.Broadcast(new Packet("message", "123")); // sending all clients a packet 
   }
+  server.Stop();
 ```
 ___
 ### Example client
