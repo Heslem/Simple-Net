@@ -4,17 +4,20 @@ using System.Threading;
 
 namespace SimpleNet
 {
-    public sealed class Listener
+    internal sealed class Listener
     {
         private readonly TcpListener _listener;
         private readonly Thread _listenThread;
 
         private bool _working = false;
 
-        public Listener(string ip = "127.0.0.1", int port = 8008)
+        private readonly Server _server;
+
+        public Listener(string ip, int port, Server server)
         {
             _listener = new TcpListener(IPAddress.Parse(ip), port);
             _listenThread = new Thread(new ThreadStart(Listen));
+            _server = server;
         }
 
         /// <summary>
@@ -42,7 +45,7 @@ namespace SimpleNet
             while (_working)
             {
                 TcpClient client = _listener.AcceptTcpClient();
-                Server.GetServer().AddConnection(client);
+                _server.AddConnection(client);
             }
         }
 

@@ -19,15 +19,16 @@ namespace SimpleNet
 
         public Action<Packet> Recieve { get; set; }
 
-        public string ID { get; private set; }
+        public Guid ID { get; private set; }
 
         public Client(string ip = "127.0.0.1", int port = 8008) : this(new TcpClient(ip, port)) { }
 
         public Client(TcpClient client)
         {
-            _client = client ?? throw new ArgumentNullException();
+            _client = client ?? throw new ArgumentNullException("Variable client was null.");
             _stream = client.GetStream();
 
+            ID = Guid.NewGuid();
             Connect = true;
 
             _recieveThread = new Thread(new ThreadStart(RecieveMessage));
@@ -46,40 +47,37 @@ namespace SimpleNet
             }
         }
 
+        private byte[] ReadDataFromStream(ushort bufferSize)
+        {
+            byte[] buffer = new byte[bufferSize];
+            _stream.Read(buffer, 0, bufferSize);
+            return buffer;
+        }
+
         #region Overloading metods (read)
         public int ReadInt()
         {
-            byte[] buffer = new byte[4];
-            _stream.Read(buffer, 0, 4);
-            return BitConverter.ToInt32(buffer, 0);
+            return BitConverter.ToInt32(ReadDataFromStream(sizeof(int)), 0);
         }
 
         public float ReadFloat()
         {
-            byte[] buffer = new byte[4];
-            _stream.Read(buffer, 0, 4);
-            return BitConverter.ToSingle(buffer, 0);
+            return BitConverter.ToSingle(ReadDataFromStream(sizeof(float)), 0);
         }
 
         public ushort ReadUshort()
         {
-            byte[] buffer = new byte[2];
-            _stream.Read(buffer, 0, 2);
-            return BitConverter.ToUInt16(buffer, 0);
+            return BitConverter.ToUInt16(ReadDataFromStream(sizeof(ushort)), 0);
         }
 
         public short ReadShort()
         {
-            byte[] buffer = new byte[2];
-            _stream.Read(buffer, 0, 2);
-            return BitConverter.ToInt16(buffer, 0);
+            return BitConverter.ToInt16(ReadDataFromStream(sizeof(short)), 0);
         }
 
-        public string ReadString(ushort couthBytes)
+        public string ReadString(in ushort couthBytes)
         {
-            byte[] buffer = new byte[couthBytes];
-            _stream.Read(buffer, 0, couthBytes);
-            return Encoding.UTF8.GetString(buffer);
+            return Encoding.UTF8.GetString(ReadDataFromStream(couthBytes));
         }
 
         public Packet ReadPacket()
@@ -95,27 +93,27 @@ namespace SimpleNet
         #endregion
 
         #region Overloading metods (send)
-        public void Send(int value)
+        public void Send(in int value)
         {
-            _stream.Write(BitConverter.GetBytes(value), 0, 4);
+            _stream.Write(BitConverter.GetBytes(value), 0, sizeof(int));
         }
 
-        public void Send(short value)
+        public void Send(in short value)
         {
-            _stream.Write(BitConverter.GetBytes(value), 0, 2);
+            _stream.Write(BitConverter.GetBytes(value), 0, sizeof(short));
         }
 
-        public void Send(ushort value)
+        public void Send(in ushort value)
         {
-            _stream.Write(BitConverter.GetBytes(value), 0, 2);
+            _stream.Write(BitConverter.GetBytes(value), 0, sizeof(ushort));
         }
 
-        public void Send(float value)
+        public void Send(in float value)
         {
-            _stream.Write(BitConverter.GetBytes(value), 0, 4);
+            _stream.Write(BitConverter.GetBytes(value), 0, sizeof(float));
         }
 
-        public void Send(string value)
+        public void Send(in string value)
         {
             byte[] data = Encoding.UTF8.GetBytes(value);
             _stream.Write(data, 0, data.Length);
@@ -125,7 +123,7 @@ namespace SimpleNet
         /// Send packet to client.
         /// </summary>
         /// <param name="packet">A packet being sent</param>
-        public void Send(Packet packet)
+        public void Send(in Packet packet)
         {
             ushort lengthName = (ushort)Encoding.UTF8.GetByteCount(packet.Name);
             ushort lengthValue = (ushort)Encoding.UTF8.GetByteCount(packet.Value);

@@ -9,18 +9,48 @@ namespace SimpleNet
     /// </summary>
     public sealed class Server
     {
-        private static Server _server;
-
-        private readonly List<Client> _clients;
-
+        #region Variables
         public int CountConnections => _clients.Count;
 
         public Action<Client> ClientConnect { get; set; }
         public Action<Client> ClientDisconnect { get; set; }
 
+
+
+        private readonly List<Client> _clients = new List<Client>();
+        private Listener _listener;
+
+        private static Server s_server;
+        #endregion
+
+        #region Constructors
         private Server()
         {
-            _clients = new List<Client>();
+            
+        }
+        #endregion
+
+        #region Metods
+
+        /// <summary>
+        /// Get server instance.
+        /// </summary>
+        public static Server GetServer()
+        {
+            if (s_server == null)
+                s_server = new Server();
+            return s_server;
+        }
+
+        public void Init(string ip = "127.0.0.1", int port = 8008)
+        {
+            _listener = new Listener(ip, port, this); 
+            _listener.Start();
+        }
+
+        public void Stop()
+        {
+            _listener.Stop();
         }
 
         public void AddConnection(TcpClient tcpClient)
@@ -36,30 +66,25 @@ namespace SimpleNet
             _clients.Remove(client);
         }
 
-        public static Server GetServer()
-        {
-            if (_server == null)
-                _server = new Server();
-            return _server;
-        }
-
         /// <summary>
-        /// Send all connected clients a packet
+        /// Send all connected clients a packet.
         /// </summary>
         public void Broadcast(Packet packet, string id = "server")
         {
-            for (int i = 0; i < _clients.Count; i++)
+            for (ushort i = 0; i < _clients.Count; i++)
             {
                 try
                 {
                     if (_clients[i].ID != id) 
                         _clients[i].Send(packet);
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
                     RemoveConnection(_clients[i]);
+                    Console.WriteLine(exception.Message);
                 }
             }
         }
+        #endregion
     }
 }
